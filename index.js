@@ -9,5 +9,5 @@ const puppeteer = require("puppeteer");
   await page.waitForSelector("input[name=username]");
   await page.$eval("input[name=username]", (el) => (el.value = "server bot"));
   await page.click('button[type="submit"]');
-  //   await browser.close();
+  await browser.close();
 })();
