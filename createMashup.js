@@ -2,12 +2,14 @@ const Contest = require("./models/Contest");
 const puppeteer = require("puppeteer");
 require("dotenv/config");
 
+const waitTime = 100;
+
 async function login(page) {
   try {
     await page.goto("https://codeforces.com/enter", {
       waitUntil: "networkidle0",
     });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(waitTime);
     await page.type("#handleOrEmail", process.env.HANDLE);
     await page.type("#password", process.env.PASSWORD);
     await page.click(".submit");
@@ -24,7 +26,7 @@ async function createMashup(page, contestNumber, duration) {
     await page.goto("https://codeforces.com/mashup/new", {
       waitUntil: "networkidle0",
     });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(waitTime);
     await page.type("#contestName", "Mashup Creator #" + contestNumber);
     await page.type("#contestDuration", duration + "");
     await page.click('input[value="Create Mashup Contest"]');
@@ -38,7 +40,7 @@ async function addManagers(page, users, contestLink) {
     await page.goto(contestLink + "/admin", {
       waitUntil: "networkidle0",
     });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(waitTime);
     for (const user of users) {
       await page.click("#addManagerLink");
       await page.type(".handleBox", user);
@@ -47,7 +49,7 @@ async function addManagers(page, users, contestLink) {
       await page.waitForNavigation({
         waitUntil: "networkidle0",
       });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(waitTime);
     }
   } catch (err) {
     console.log(err);
@@ -59,7 +61,7 @@ async function addProblems(page, problems, contestLink) {
     await page.goto(contestLink + "/problems/new", {
       waitUntil: "networkidle0",
     });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(waitTime);
     for (const problem of problems) {
       await page.type('input[name="problemQuery"]', problem);
       await page.click("._MashupContestEditFrame_addProblemLink");
@@ -69,7 +71,7 @@ async function addProblems(page, problems, contestLink) {
     await page.waitForNavigation({
       waitUntil: "networkidle0",
     });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(waitTime);
   } catch (err) {
     console.log(err);
   }
