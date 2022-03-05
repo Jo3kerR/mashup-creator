@@ -81,7 +81,7 @@ async function getContestLink(contest) {
   try {
     const lastContest = await Contest.find().sort({ _id: -1 }).limit(1);
     contest.contestNumber = lastContest[0].contestNumber + 1;
-    await contest.save(); // uncomment when saving to DB
+    await contest.save();
     const browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox"],
