@@ -3,3 +3,22 @@
     width: 500px;
   }
 }
+
+.custFont {
+  font-size: 50px;
+  text-align: center;
+  padding-bottom: 50px;
+}
+
+.row {
+  padding: 10px;
+}
+
+.contestLink {
+  font-size: 20px;
+  text-align: center;
+}
+
+.container {
+  padding: 50px 0;
+}

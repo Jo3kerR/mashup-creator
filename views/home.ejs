@@ -25,7 +25,7 @@
                 <div class="d-grid gap-2">
                   <input
                     type="text"
-                    placeholder="Enter duration"
+                    placeholder="Enter duration (in mins)"
                     name="duration"
                     required
                     maxlength="3"
@@ -65,7 +65,11 @@
               </div>
             </div>
           </form>
-          <span class="container"></span>
+          <div class="row">
+            <div class="col">
+              <div class="contestLink"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -82,7 +86,7 @@
             // Dynamically create an object
             user[value.name] = value.value;
           });
-          $("span").text("Please wait");
+          $(".contestLink").text("Please wait");
           const url = "/q";
           $.ajax({
             method: "POST",
@@ -91,13 +95,19 @@
           })
             .done(function (msg) {
               // When the request is successful
+              const link = $("<a>");
+              link.attr("href", msg);
+              link.attr("target", "_blank");
+              link.text("Click here");
+              link.addClass("link");
               setTimeout(() => {
-                $("span").text("Contest link: " + msg);
+                $(".contestLink").html(link);
               }, 20000);
             })
             .fail(function (err, textstatus, error) {
               console.log(err);
             });
+          
         });
       });
     </script>
