@@ -1,8 +1,57 @@
-const Contest = require("./models/Contest");
-const puppeteer = require("puppeteer");
+const axios = require("axios");
 require("dotenv/config");
 
-const waitTime = 100;
+async function unsolvedIds(contest) {
+  try {
+    // allUnsolvedProblems contains all unsolved problems from the CF problemset
+    const allUnsolvedProblems = new Array(36);
+    for (let i = 8; i < allUnsolvedProblems.length; ++i) {
+      allUnsolvedProblems[i] = new Map();
+    }
+
+    // get all problems of given rating
+    const response = await axios.get(
+      "https://codeforces.com/api/problemset.problems"
+    );
+    const problems = response.data.result.problems;
+    for (const problem of problems) {
+      if (problem.rating >= 800 && problem.rating < 3600) {
+        allUnsolvedProblems[problem.rating / 100].set(
+          problem.name,
+          problem.contestId + problem.index
+        );
+      }
+    }
+
+    // remove all solved problems
+    for (const user of contest.users) {
+      const response = await axios.get(
+        `https://codeforces.com/api/user.status?handle=${user}`
+      );
+      const data = response.data.result;
+      if (data.length === 0) continue;
+      for (const d of data) {
+        if (d.verdict === "OK" && d.problem.rating !== undefined) {
+          allUnsolvedProblems[d.problem.rating / 100].delete(d.problem.name);
+        }
+      }
+    }
+
+    let newProblems = [];
+    for (const rating of contest.ratings) {
+      for (const entry of allUnsolvedProblems[rating / 100].entries()) {
+        newProblems.push(entry[1]);
+        allUnsolvedProblems[rating / 100].delete(entry[0]);
+        break;
+      }
+    }
+    return newProblems;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const waitTime = 1000;
 
 async function login(page) {
   try {
@@ -21,7 +70,7 @@ async function login(page) {
   }
 }
 
-async function createMashup(page, contestNumber, duration) {
+async function createMashup(page, duration, contestNumber) {
   try {
     await page.goto("https://codeforces.com/mashup/new", {
       waitUntil: "networkidle0",
@@ -65,7 +114,7 @@ async function addProblems(page, problems, contestLink) {
     for (const problem of problems) {
       await page.type('input[name="problemQuery"]', problem);
       await page.click("._MashupContestEditFrame_addProblemLink");
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
     }
     await page.click(".submit");
     await page.waitForNavigation({
@@ -77,30 +126,18 @@ async function addProblems(page, problems, contestLink) {
   }
 }
 
-async function getContestLink(contest) {
-  try {
-    const lastContest = await Contest.find().sort({ _id: -1 }).limit(1);
-    contest.contestNumber = lastContest[0].contestNumber + 1;
-    await contest.save();
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox"],
-    });
-    const page = await browser.newPage();
-    page.on("dialog", async (dialog) => {
-      await dialog.accept();
-    });
-    await login(page);
-    await createMashup(page, contest.contestNumber, contest.duration);
-    await page.waitForNavigation();
-    const contestLink = await page.evaluate(() => window.location.href);
-    await addManagers(page, contest.users, contestLink);
-    await addProblems(page, contest.problems, contestLink);
-    await browser.close();
-    return contestLink;
-  } catch (err) {
-    console.log(err);
-  }
+async function initializeContest(page, contest) {
+  await login(page);
+  await createMashup(page, contest.duration, contest.contestNumber);
+  await page.waitForNavigation();
+  const contestLink = await page.evaluate(() => window.location.href);
+  return contestLink;
 }
 
-module.exports = { getContestLink };
+module.exports = {
+  unsolvedIds,
+  addManagers,
+  addProblems,
+  initializeContest,
+  unsolvedIds,
+};

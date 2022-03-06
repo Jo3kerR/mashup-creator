@@ -90,9 +90,10 @@
             data: user,
           })
             .done(function (msg) {
-              console.log(msg);
               // When the request is successful
-              $("span").text("Contest link: " + msg);
+              setTimeout(() => {
+                $("span").text("Contest link: " + msg);
+              }, 20000);
             })
             .fail(function (err, textstatus, error) {
               console.log(err);

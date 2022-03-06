@@ -23,12 +23,6 @@ const contestSchema = mongoose.Schema({
       required: true,
     },
   ],
-  problems: [
-    {
-      type: String,
-      required: true,
-    },
-  ],
 });
 
 module.exports = mongoose.model("contest", contestSchema);
