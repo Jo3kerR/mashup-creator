@@ -47,7 +47,8 @@ async function unsolvedIds(contest) {
     }
     return newProblems;
   } catch (err) {
-    console.log(err);
+    console.log(err.response.data.comment);
+    return err.response.data.comment;
   }
 }
 

@@ -31,6 +31,16 @@ router.post("/", async (req, res) => {
     users: trimmedUsers,
     ratings: req.body.ratings.split(","),
   });
+  while (contest.ratings > 26) {
+    contest.ratings.pop();
+  }
+  const ratingErrorMsg = "Please enter valid rating(s)";
+  for (const rating of contest.ratings) {
+    if (rating % 100 !== 0 || rating < 800 || rating > 3500) {
+      res.json(ratingErrorMsg);
+      return;
+    }
+  }
   const lastContests = await Contest.find().sort({ _id: -1 }).limit(1);
   const newContestNumber = lastContests[0].contestNumber + 1;
   contest.contestNumber = newContestNumber;
@@ -48,7 +58,12 @@ router.post("/", async (req, res) => {
       unsolvedIds(contest),
       contest.save(),
     ]);
+    if (typeof problems === "string") {
+      res.json(problems);
+      return;
+    }
     res.json(contestLink);
+
     await addManagers(page, contest.users, contestLink);
     await addProblems(page, problems, contestLink);
     await browser.close();

@@ -60,7 +60,7 @@
             <div class="row mt-1">
               <div class="col">
                 <div class="d-grid gap-2">
-                  <input class="btn btn-primary bg-dark" type="submit" />
+                  <input class="btn btn-primary bg-dark myBtn glow-button" type="submit" />
                 </div>
               </div>
             </div>
@@ -95,14 +95,19 @@
           })
             .done(function (msg) {
               // When the request is successful
-              const link = $("<a>");
-              link.attr("href", msg);
-              link.attr("target", "_blank");
-              link.text("Click here");
-              link.addClass("link");
-              setTimeout(() => {
-                $(".contestLink").html(link);
-              }, 20000);
+              if(msg.startsWith("https")) {
+                const link = $("<a>");
+                link.attr("href", msg);
+                link.attr("target", "_blank");
+                link.text("Click here");
+                link.addClass("link");
+                setTimeout(() => {
+                  $(".contestLink").html(link);
+                }, 20000);
+              }
+              else {
+                $(".contestLink").text(msg);
+              }
             })
             .fail(function (err, textstatus, error) {
               console.log(err);

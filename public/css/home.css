@@ -1,3 +1,7 @@
+body {
+  background-color: #111;
+}
+
 @media screen and (min-width: 500px) {
   .container {
     width: 500px;
@@ -7,7 +11,14 @@
 .custFont {
   font-size: 50px;
   text-align: center;
-  padding-bottom: 50px;
+  padding: 20px 0;
+  text-transform: uppercase;
+  font-family: "Fredoka", sans-serif;
+  border-radius: 10px;
+
+  background: #111;
+  color: #fff;
+  text-shadow: 1px 1px 3px #fff, 1px 1px 7px #ccc;
 }
 
 .row {
@@ -21,4 +32,34 @@
 
 .container {
   padding: 50px 0;
+}
+
+input {
+  border-radius: 7px;
+  border: 0px;
+  line-height: 30px;
+}
+
+.myBtn {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgb(17, 96, 213);
+  padding: 5px 0;
+  border-radius: 4px;
+  font-weight: normal;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+
+  -webkit-box-shadow: 0 0 10px rgb(17, 96, 213);
+  -moz-box-shadow: 0 0 10px rgb(17, 96, 213);
+  box-shadow: 0 0 10px rgb(17, 96, 213);
+}
+
+.glow-button:hover {
+  color: rgba(255, 255, 255, 1);
+  box-shadow: 0 5px 15px rgba(17, 96, 213, 0.4);
+}
+
+.contestLink {
+  color: #fff;
 }
