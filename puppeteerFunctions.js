@@ -1,4 +1,4 @@
-const waitTime = 500;
+const waitTime = 1000;
 
 async function login(page) {
   try {
