@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const queryRoute = require("./routes");
-app.use("/q", queryRoute);
+app.use("/create", queryRoute);
 
 app.get("/", (req, res) => {
   res.render("home");

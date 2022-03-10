@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Contest = require("./models/Contest");
-const {
-  initializeContest,
-  addManagers,
-  addProblems,
-  unsolvedIds,
-} = require("./createMashup");
+const { getUnsolvedProblems, getContest } = require("./contestDetails");
+const { initializeContest, finalizeContest } = require("./puppeteerFunctions");
+const { validateRatings, validateUsers } = require("./validation");
 const puppeteer = require("puppeteer");
 
 router.get("/", async (req, res) => {
@@ -20,52 +17,43 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  // res.json("DISPLAY");
-  const users = req.body.users.split(",");
-  const trimmedUsers = [];
-  for (const user of users) {
-    trimmedUsers.push(user.trim());
+  const contest = await getContest(req.body);
+
+  // validate data
+  const [checkRatings, checkUsers] = await Promise.all([
+    validateRatings(contest.ratings),
+    validateUsers(contest.users),
+  ]);
+  if (checkUsers !== 1) {
+    res.json(checkUsers);
+    return;
   }
-  const contest = new Contest({
-    duration: req.body.duration,
-    users: trimmedUsers,
-    ratings: req.body.ratings.split(","),
-  });
-  while (contest.ratings > 26) {
-    contest.ratings.pop();
+  if (checkRatings !== 1) {
+    res.json(checkRatings);
+    return;
   }
-  const ratingErrorMsg = "Please enter valid rating(s)";
-  for (const rating of contest.ratings) {
-    if (rating % 100 !== 0 || rating < 800 || rating > 3500) {
-      res.json(ratingErrorMsg);
-      return;
-    }
-  }
-  const lastContests = await Contest.find().sort({ _id: -1 }).limit(1);
-  const newContestNumber = lastContests[0].contestNumber + 1;
-  contest.contestNumber = newContestNumber;
+
   try {
     const browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox"],
     });
     const page = await browser.newPage();
-    // page.on("dialog", async (dialog) => {
-    //   await dialog.accept();
-    // });
+
+    // get contest data
     const [contestLink, problems] = await Promise.all([
       initializeContest(page, contest),
-      unsolvedIds(contest),
-      contest.save(),
+      getUnsolvedProblems(contest),
     ]);
-    if (typeof problems === "string") {
-      res.json(problems);
-      return;
-    }
+
+    // respond with contest link to avoid heroku 30s timeout
     res.json(contestLink);
 
-    await addManagers(page, contest.users, contestLink);
-    await addProblems(page, problems, contestLink);
+    // save contest to db and add problems and users to contest
+    await Promise.all([
+      contest.save(),
+      finalizeContest(page, contest.users, problems, contestLink),
+    ]);
     await browser.close();
   } catch (err) {
     console.log(err);

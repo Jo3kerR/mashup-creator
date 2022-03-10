@@ -1,58 +1,4 @@
-const axios = require("axios");
-require("dotenv/config");
-
-async function unsolvedIds(contest) {
-  try {
-    // allUnsolvedProblems contains all unsolved problems from the CF problemset
-    const allUnsolvedProblems = new Array(36);
-    for (let i = 8; i < allUnsolvedProblems.length; ++i) {
-      allUnsolvedProblems[i] = new Map();
-    }
-
-    // get all problems of given rating
-    const response = await axios.get(
-      "https://codeforces.com/api/problemset.problems"
-    );
-    const problems = response.data.result.problems;
-    for (const problem of problems) {
-      if (problem.rating >= 800 && problem.rating < 3600) {
-        allUnsolvedProblems[problem.rating / 100].set(
-          problem.name,
-          problem.contestId + problem.index
-        );
-      }
-    }
-
-    // remove all solved problems
-    for (const user of contest.users) {
-      const response = await axios.get(
-        `https://codeforces.com/api/user.status?handle=${user}`
-      );
-      const data = response.data.result;
-      if (data.length === 0) continue;
-      for (const d of data) {
-        if (d.verdict === "OK" && d.problem.rating !== undefined) {
-          allUnsolvedProblems[d.problem.rating / 100].delete(d.problem.name);
-        }
-      }
-    }
-
-    let newProblems = [];
-    for (const rating of contest.ratings) {
-      for (const entry of allUnsolvedProblems[rating / 100].entries()) {
-        newProblems.push(entry[1]);
-        allUnsolvedProblems[rating / 100].delete(entry[0]);
-        break;
-      }
-    }
-    return newProblems;
-  } catch (err) {
-    console.log(err.response.data.comment);
-    return err.response.data.comment;
-  }
-}
-
-const waitTime = 1000;
+const waitTime = 500;
 
 async function login(page) {
   try {
@@ -135,10 +81,12 @@ async function initializeContest(page, contest) {
   return contestLink;
 }
 
+async function finalizeContest(page, users, problems, contestLink) {
+  await addManagers(page, users, contestLink);
+  await addProblems(page, problems, contestLink);
+}
+
 module.exports = {
-  unsolvedIds,
-  addManagers,
-  addProblems,
+  finalizeContest,
   initializeContest,
-  unsolvedIds,
 };
