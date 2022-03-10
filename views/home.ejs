@@ -86,7 +86,7 @@
             // Dynamically create an object
             user[value.name] = value.value;
           });
-          $(".contestLink").text("Please wait");
+          $(".contestLink").text("Creating Mashup...");
           const url = "/create";
           $.ajax({
             method: "POST",
