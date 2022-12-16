@@ -2,10 +2,6 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-<<<<<<< HEAD
-=======
-const path = require("path");
->>>>>>> 7e39916fcca37e4ced145a16a8ce185788e91be1
 const cron = require("node-cron");
 const cors = require("cors");
 const { updateAllProblems } = require("./src/UpdateProblemset");
