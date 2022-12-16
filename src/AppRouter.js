@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const Contest = require("./models/Contest");
-const { getUnsolvedProblems, getContest } = require("./contestDetails");
-const { initializeContest, finalizeContest } = require("./puppeteerFunctions");
-const { validateRatings, validateUsers } = require("./validation");
+const Contest = require("../models/Contest");
+const { getUnsolvedProblems, getNewContest } = require("./ContestDetails");
+const { initializeContest, finalizeContest } = require("./CreateContest");
+const { validateRatings, validateUsers } = require("./Validator");
 const puppeteer = require("puppeteer");
 
 router.get("/", async (req, res) => {
@@ -17,7 +17,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const contest = await getContest(req.body);
+  const contest = await getNewContest(req.body);
+  res.send(`${contest.contestNumber}`);
 
   // validate data
   const [checkRatings, checkUsers] = await Promise.all([
@@ -46,14 +47,11 @@ router.post("/", async (req, res) => {
       getUnsolvedProblems(contest),
     ]);
 
-    // respond with contest link to avoid heroku 30s timeout
-    res.json(contestLink);
+    contest.contestLink = contestLink;
 
-    // save contest to db and add problems and users to contest
-    await Promise.all([
-      contest.save(),
-      finalizeContest(page, contest.users, problems, contestLink),
-    ]);
+    // save contest to db
+    await finalizeContest(page, contest.users, problems, contestLink);
+    await contest.save();
     await browser.close();
   } catch (err) {
     console.log(err);
