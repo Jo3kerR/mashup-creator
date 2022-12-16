@@ -103,6 +103,26 @@ const addProblems = async (page, problems, contestLink) => {
 };
 
 const initializeContest = async (page, contest) => {
+<<<<<<< HEAD:src/CreateContest.js
+  try {
+    await login(page);
+    await createMashup(page, contest.duration, contest.contestNumber);
+    await delay(waitTime);
+    const contestLink = await page.evaluate(() => window.location.href);
+    return contestLink;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const finalizeContest = async (page, users, problems, contestLink) => {
+  try {
+    await addManagers(page, users, contestLink);
+    await addProblems(page, problems, contestLink);
+  } catch (e) {
+    console.log(e);
+  }
+=======
   await login(page);
   await createMashup(page, contest.duration, contest.contestNumber);
   await delay(waitTime);
@@ -113,6 +133,7 @@ const initializeContest = async (page, contest) => {
 const finalizeContest = async (page, users, problems, contestLink) => {
   await addManagers(page, users, contestLink);
   await addProblems(page, problems, contestLink);
+>>>>>>> 7e39916fcca37e4ced145a16a8ce185788e91be1:puppeteerFunctions.js
 };
 
 module.exports = {

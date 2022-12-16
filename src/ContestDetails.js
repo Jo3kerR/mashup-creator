@@ -4,41 +4,57 @@ const Problem = require("../models/Problem");
 require("dotenv/config");
 
 const getNewContestNumber = async () => {
-  const lastContests = await Contest.find().sort({ _id: -1 }).limit(1);
-  return lastContests[0].contestNumber + 1;
+  try {
+    const lastContests = await Contest.find().sort({ _id: -1 }).limit(1);
+    return lastContests[0].contestNumber + 1;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const getNewContest = async (reqBody) => {
-  const users = reqBody.users;
-  const trimmedUsers = [];
-  for (const user of users) {
-    trimmedUsers.push(user.trim());
+  try {
+    const users = reqBody.users;
+    const trimmedUsers = [];
+    for (const user of users) {
+      trimmedUsers.push(user.trim());
+    }
+    const contest = new Contest({
+      duration: reqBody.duration,
+      users: trimmedUsers,
+      ratings: reqBody.ratings,
+    });
+    while (contest.ratings.length > 26) {
+      contest.ratings.pop();
+    }
+    contest.contestNumber = await getNewContestNumber();
+    return contest;
+  } catch (e) {
+    console.log(e);
   }
-  const contest = new Contest({
-    duration: reqBody.duration,
-    users: trimmedUsers,
-    ratings: reqBody.ratings,
-  });
-  while (contest.ratings.length > 26) {
-    contest.ratings.pop();
-  }
-  contest.contestNumber = await getNewContestNumber();
-  return contest;
 };
 
 const getAllProblems = async () => {
-  return await Problem.find();
+  try {
+    return await Problem.find();
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const getAllSolvedProblems = async (users) => {
-  const solvedProblems = [];
-  for (const user of users) {
-    const response = await axios.get(
-      `https://codeforces.com/api/user.status?handle=${user}`
-    );
-    solvedProblems.push(response.data.result);
+  try {
+    const solvedProblems = [];
+    for (const user of users) {
+      const response = await axios.get(
+        `https://codeforces.com/api/user.status?handle=${user}`
+      );
+      solvedProblems.push(response.data.result);
+    }
+    return solvedProblems;
+  } catch (e) {
+    console.log(e);
   }
-  return solvedProblems;
 };
 
 const addAllProblems = (allUnsolvedProblems, problems) => {
