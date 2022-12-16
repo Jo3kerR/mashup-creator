@@ -103,16 +103,24 @@ const addProblems = async (page, problems, contestLink) => {
 };
 
 const initializeContest = async (page, contest) => {
-  await login(page);
-  await createMashup(page, contest.duration, contest.contestNumber);
-  await delay(waitTime);
-  const contestLink = await page.evaluate(() => window.location.href);
-  return contestLink;
+  try {
+    await login(page);
+    await createMashup(page, contest.duration, contest.contestNumber);
+    await delay(waitTime);
+    const contestLink = await page.evaluate(() => window.location.href);
+    return contestLink;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const finalizeContest = async (page, users, problems, contestLink) => {
-  await addManagers(page, users, contestLink);
-  await addProblems(page, problems, contestLink);
+  try {
+    await addManagers(page, users, contestLink);
+    await addProblems(page, problems, contestLink);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 module.exports = {
