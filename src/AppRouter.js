@@ -17,24 +17,23 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const contest = await getNewContest(req.body);
-  res.send(`${contest.contestNumber}`);
-
-  // validate data
-  const [checkRatings, checkUsers] = await Promise.all([
-    validateRatings(contest.ratings),
-    validateUsers(contest.users),
-  ]);
-  if (checkUsers !== 1) {
-    res.json(checkUsers);
-    return;
-  }
-  if (checkRatings !== 1) {
-    res.json(checkRatings);
-    return;
-  }
-
   try {
+    const contest = await getNewContest(req.body);
+    res.send(`${contest.contestNumber}`);
+    // validate data
+    const [checkRatings, checkUsers] = await Promise.all([
+      validateRatings(contest.ratings),
+      validateUsers(contest.users),
+    ]);
+    if (checkUsers !== 1) {
+      res.json(checkUsers);
+      return;
+    }
+    if (checkRatings !== 1) {
+      res.json(checkRatings);
+      return;
+    }
+
     const browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox"],
