@@ -3,7 +3,7 @@ const router = express.Router();
 const Contest = require("../models/Contest");
 const { getUnsolvedProblems, getNewContest } = require("./ContestDetails");
 const { initializeContest, finalizeContest } = require("./CreateContest");
-const { validateRatings, validateUsers } = require("./Validator");
+const { validateUsers } = require("./Validator");
 const puppeteer = require("puppeteer");
 
 router.get("/", async (req, res) => {
@@ -19,20 +19,13 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const contest = await getNewContest(req.body);
-    res.send(`${contest.contestNumber}`);
     // validate data
-    const [checkRatings, checkUsers] = await Promise.all([
-      validateRatings(contest.ratings),
-      validateUsers(contest.users),
-    ]);
+    const checkUsers = await validateUsers(contest.users);
     if (checkUsers !== 1) {
       res.json(checkUsers);
       return;
     }
-    if (checkRatings !== 1) {
-      res.json(checkRatings);
-      return;
-    }
+    res.json({ contestNumber: contest.contestNumber });
 
     const browser = await puppeteer.launch({
       headless: true,

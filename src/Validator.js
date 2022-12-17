@@ -14,16 +14,6 @@ const validateUsers = async (users) => {
   }
 };
 
-const validateRatings = (ratings) => {
-  for (const rating of ratings) {
-    if (rating % 100 !== 0 || rating < 800 || rating > 3500) {
-      return "Please enter valid rating(s)";
-    }
-  }
-  return 1;
-};
-
 module.exports = {
   validateUsers,
-  validateRatings,
 };
