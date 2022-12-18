@@ -70,7 +70,7 @@ const addAllProblems = (allUnsolvedProblems, problems) => {
 
 const deleteSolvedProblems = (allUnsolvedProblems, solvedProblems) => {
   for (const data of solvedProblems) {
-    if (data.length === 0) continue;
+    if (data === undefined || data.length === 0) continue;
     for (const d of data) {
       if (d.verdict === "OK" && d.problem.rating !== undefined) {
         allUnsolvedProblems[d.problem.rating / 100].delete(d.problem.name);

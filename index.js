@@ -18,6 +18,7 @@ app.use("/contests", require("./src/ContestRouter"));
 // cron job to update problem set from codeforces API every 24 hours
 cron.schedule("0 0 * * *", updateAllProblems);
 
+mongoose.set("strictQuery", false);
 mongoose.connect(process.env.DB_CONNECT, () => console.log("DB connected"));
 
 const port = process.env.PORT || 9000;
